@@ -1,10 +1,12 @@
-# 使用Ubuntu作为基础镜像
+# 使用Python 3.8精简版作为基础镜像
 FROM python:3.8-slim
 
-# 避免交互式提示
+# 避免在构建过程中出现交互式提示
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安装必要的包
+# 安装必要的系统包
+# espeak-ng: 文字转语音引擎
+# sqlite3: 数据库工具
 RUN apt-get update && apt-get install -y \
     espeak-ng \
     sqlite3 \
@@ -17,19 +19,19 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# 复制所有应用文件
+# 复制所有应用文件到容器中
 COPY . .
 RUN chmod -R 755 /app
 
-# 创建数据目录
+# 创建数据目录并设置权限
 RUN mkdir -p /app/data && chmod 777 /app/data
 
 # 设置环境变量
-ENV SQLITE_DB_PATH=/app/data/api_keys.db
-ENV FLASK_APP=app.py
-ENV FLASK_ENV=production
+ENV SQLITE_DB_PATH=/app/data/api_keys.db  # API密钥数据库路径
+ENV FLASK_APP=app.py                      # Flask应用入口
+ENV FLASK_ENV=production                  # 运行环境
 
-# 暴露端口
+# 暴露服务端口
 EXPOSE 5000
 
 # 启动应用
