@@ -234,21 +234,11 @@ espeak-ng-data/mbrola_ph/*_phtrans
 # Python
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
-.Python
 env/
 venv/
-ENV/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
 
 # 项目特定
-api_keys.db
 *.wav
 .env
 

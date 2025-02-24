@@ -13,22 +13,6 @@
 IMAGE_NAME="espeak-ng-api"          # Docker镜像名称
 IMAGE_TAG="latest"                  # 镜像标签
 
-# 配置 Docker 镜像加速
-if [ ! -f /etc/docker/daemon.json ]; then
-    sudo mkdir -p /etc/docker
-    sudo tee /etc/docker/daemon.json <<-'EOF'
-{
-  "registry-mirrors": [
-    "https://mirror.ccs.tencentyun.com",
-    "https://hub-mirror.c.163.com",
-    "https://mirror.baidubce.com"
-  ]
-}
-EOF
-    sudo systemctl daemon-reload
-    sudo systemctl restart docker
-fi
-
 # 开始构建流程
 echo "开始构建 ${IMAGE_NAME}:${IMAGE_TAG} 镜像..."
 
@@ -45,17 +29,17 @@ echo "文件检查通过"
 
 # 执行Docker构建
 echo "开始构建Docker镜像..."
-docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+docker build -t espeak-ng-api:latest .
 
 # 检查构建结果
 if [ $? -eq 0 ]; then
     echo "镜像构建成功!"
     echo "镜像信息:"
-    docker images ${IMAGE_NAME}:${IMAGE_TAG}  # 显示镜像信息
+    docker images espeak-ng-api:latest  # 显示镜像信息
     
     # 显示使用说明
     echo -e "\n使用以下命令运行容器:"
-    echo "docker run -p 5000:5000 ${IMAGE_NAME}:${IMAGE_TAG}"
+    echo "docker run -p 5000:5000 espeak-ng-api:latest"
 else
     echo "错误: 镜像构建失败"
     exit 1

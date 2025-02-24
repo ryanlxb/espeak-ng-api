@@ -40,11 +40,7 @@ fi
 
 # 启动新容器
 echo "正在启动容器..."
-docker run -d \                      # 后台运行容器
-    --name ${CONTAINER_NAME} \       # 设置容器名称
-    -p ${HOST_PORT}:${CONTAINER_PORT} \  # 端口映射
-    --restart unless-stopped \       # 自动重启策略
-    ${IMAGE_NAME}:${IMAGE_TAG}      # 使用的镜像
+docker run -p 5000:5000 espeak-ng-api:latest
 
 # 检查容器启动状态
 if [ $? -eq 0 ]; then
