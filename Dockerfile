@@ -1,5 +1,5 @@
-# 使用Python 3.8精简版作为基础镜像
-FROM python:3.8-slim
+# 使用Python 3.9精简版作为基础镜像
+FROM python:3.9-slim
 
 # 避免在构建过程中出现交互式提示
 ENV DEBIAN_FRONTEND=noninteractive

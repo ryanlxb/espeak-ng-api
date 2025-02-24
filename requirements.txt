@@ -1,3 +1,6 @@
+# Python版本要求
+# Python >= 3.9
+
 # Web框架及其依赖
 Flask==2.2.5
 werkzeug==3.0.6
