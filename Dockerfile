@@ -17,14 +17,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# 复制应用文件
-COPY app.py .
-COPY api_auth.py .
-
-# 创建templates目录并复制文件
-RUN mkdir -p /app/templates
-COPY templates/index.html /app/templates/
-RUN chmod -R 755 /app/templates
+# 复制所有应用文件
+COPY . .
+RUN chmod -R 755 /app
 
 # 创建数据目录
 RUN mkdir -p /app/data && chmod 777 /app/data
