@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESPeak-NG Web Demo</title>
+    <style>
+        body { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        textarea { width: 100%; height: 150px; }
+        .api-section { margin-top: 30px; padding: 20px; background: #f5f5f5; }
+        .advanced-params { margin-top: 20px; }
+        .loading { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <h1>文字转语音演示</h1>
+    
+    <!-- API密钥管理部分 -->
+    <div class="api-section">
+        <h2>API密钥管理</h2>
+        <button onclick="generateApiKey()">生成新API密钥</button>
+        <div id="api-key-display"></div>
+    </div>
+
+    <!-- TTS表单 -->
+    <form id="ttsForm">
+        <div class="form-group">
+            <label>输入文本：</label>
+            <textarea name="text" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>语言：</label>
+            <select name="lang">
+                <option value="zh">中文</option>
+                <option value="en">英文</option>
+                <option value="ja">日语</option>
+                <option value="ko">韩语</option>
+            </select>
+        </div>
+        
+        <div class="advanced-params">
+            <h3>高级参数设置</h3>
+            <div class="form-group">
+                <label>语速 (80-500)：</label>
+                <input type="number" name="speed" value="160" min="80" max="500">
+            </div>
+            <div class="form-group">
+                <label>音调 (0-99)：</label>
+                <input type="number" name="pitch" value="50" min="0" max="99">
+            </div>
+            <div class="form-group">
+                <label>音量 (0-200)：</label>
+                <input type="number" name="volume" value="100" min="0" max="200">
+            </div>
+            <div class="form-group">
+                <label>声音变体：</label>
+                <input type="text" name="voice_variant" placeholder="例如：+f1,+m1">
+            </div>
+        </div>
+        
+        <button type="submit">生成语音</button>
+    </form>
+    <div id="audio-output"></div>
+
+    <script>
+        // API密钥生成
+        async function generateApiKey() {
+            const response = await fetch('/api/keys/generate', {
+                method: 'POST'
+            });
+            const data = await response.json();
+            localStorage.setItem('api_key', data.api_key);
+            document.getElementById('api-key-display').innerHTML = 
+                `<p>新API密钥: <code>${data.api_key}</code></p>`;
+        }
+
+        // TTS表单提交
+        document.getElementById('ttsForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = '生成中...';
+            e.target.classList.add('loading');
+            
+            try {
+                const formData = new FormData(e.target);
+                const response = await fetch('/api/tts', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-API-Key': localStorage.getItem('api_key') || ''
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const blob = await response.blob();
+                const audio = document.createElement('audio');
+                audio.src = URL.createObjectURL(blob);
+                audio.controls = true;
+                
+                const output = document.getElementById('audio-output');
+                output.innerHTML = '';
+                output.appendChild(audio);
+            } catch (error) {
+                alert('生成语音失败：' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = '生成语音';
+                e.target.classList.remove('loading');
+            }
+        };
+    </script>
+</body>
+</html>
