@@ -27,9 +27,12 @@ RUN chmod -R 755 /app
 RUN mkdir -p /app/data && chmod 777 /app/data
 
 # 设置环境变量
-ENV SQLITE_DB_PATH=/app/data/api_keys.db  # API密钥数据库路径
-ENV FLASK_APP=app.py                      # Flask应用入口
-ENV FLASK_ENV=production                  # 运行环境
+# API密钥数据库路径
+ENV SQLITE_DB_PATH=/app/data/api_keys.db
+# Flask应用入口
+ENV FLASK_APP=app.py
+# 运行环境
+ENV FLASK_DEBUG=0
 
 # 暴露服务端口
 EXPOSE 5000

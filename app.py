@@ -23,6 +23,22 @@ import logging
 # 确保模板路径正确
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
 app = Flask(__name__, template_folder=template_dir)
+
+# 生产环境配置
+app.config.update(
+    ENV='production',
+    DEBUG=False,
+    TESTING=False,
+    PROPAGATE_EXCEPTIONS=False,
+    PRESERVE_CONTEXT_ON_EXCEPTION=None,
+    TRAP_HTTP_EXCEPTIONS=False,
+    TRAP_BAD_REQUEST_ERRORS=False,
+    SECRET_KEY=os.urandom(24),  # 生成随机密钥
+    SESSION_COOKIE_SECURE=True,
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax'
+)
+
 TEMP_DIR = tempfile.gettempdir()
 
 # 配置日志系统
