@@ -33,8 +33,17 @@ def validate_api_key(api_key):
     db_path = os.environ.get('SQLITE_DB_PATH', 'api_keys.db')
     conn = sqlite3.connect(db_path)
     c = conn.cursor()
-    c.execute("SELECT is_active FROM api_keys WHERE key = ?", (api_key,))
+    c.execute("""
+        SELECT is_active 
+        FROM api_keys 
+        WHERE key = ? 
+        AND datetime(last_used) > datetime('now', '-30 day')
+    """, (api_key,))
     result = c.fetchone()
+    if result and result[0]:
+        c.execute("UPDATE api_keys SET last_used = ? WHERE key = ?",
+                 (datetime.datetime.now(), api_key))
+        conn.commit()
     conn.close()
     return result is not None and result[0]
 
@@ -45,4 +54,4 @@ def require_api_key(f):
         if not api_key or not validate_api_key(api_key):
             return jsonify({"error": "Invalid API key"}), 401
         return f(*args, **kwargs)
-    return decorated_function 
+    return decorated_function

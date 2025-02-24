@@ -7,12 +7,24 @@ import atexit
 import glob
 import logging
 
-app = Flask(__name__)
+# 确保模板路径正确
+template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
+app = Flask(__name__, template_folder=template_dir)
 TEMP_DIR = tempfile.gettempdir()
 
 # 配置日志
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
+
+# 启动时检查模板目录
+logger.info(f"Template directory: {template_dir}")
+if not os.path.exists(template_dir):
+    logger.error(f"Template directory not found: {template_dir}")
+else:
+    logger.info(f"Template files: {os.listdir(template_dir)}")
 
 # 初始化数据库
 init_db()
@@ -31,7 +43,12 @@ atexit.register(cleanup_temp_files)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    try:
+        logger.info("Attempting to render index.html")
+        return render_template('index.html')
+    except Exception as e:
+        logger.error(f"Error rendering template: {str(e)}")
+        return jsonify({"error": "Template rendering failed"}), 500
 
 @app.route('/api/keys/generate', methods=['POST'])
 def generate_key():
@@ -76,4 +93,5 @@ def cleanup():
     return jsonify({"status": "success"})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=6000) 
+    logger.info("Starting Flask application...")
+    app.run(host='0.0.0.0', port=5000) 
