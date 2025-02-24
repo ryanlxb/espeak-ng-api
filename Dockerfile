@@ -1,14 +1,12 @@
-# 设置镜像源参数
-ARG DOCKER_REGISTRY_MIRROR
-
 # 使用Python 3.9精简版作为基础镜像
-FROM ${DOCKER_REGISTRY_MIRROR:-docker.io}/library/python:3.9-slim
+FROM python:3.9-slim
 
 # 避免在构建过程中出现交互式提示
 ENV DEBIAN_FRONTEND=noninteractive
 
-# 安装必要的系统包前设置apt源
-RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list
+# 使用阿里云镜像源
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/
 
 # 安装必要的系统包
 # espeak-ng: 文字转语音引擎

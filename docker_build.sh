@@ -13,22 +13,21 @@
 IMAGE_NAME="espeak-ng-api"          # Docker镜像名称
 IMAGE_TAG="latest"                  # 镜像标签
 
-# 设置Docker镜像源
-DOCKER_REGISTRY_MIRRORS=(
-    "https://registry.docker-cn.com"
-    "https://hub-mirror.c.163.com"
+# 配置 Docker 镜像加速
+if [ ! -f /etc/docker/daemon.json ]; then
+    sudo mkdir -p /etc/docker
+    sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": [
+    "https://mirror.ccs.tencentyun.com",
+    "https://hub-mirror.c.163.com",
     "https://mirror.baidubce.com"
-)
-
-# 测试镜像源连接性并选择最快的
-echo "正在测试镜像源连接性..."
-for mirror in "${DOCKER_REGISTRY_MIRRORS[@]}"; do
-    if curl -s --connect-timeout 3 "$mirror" > /dev/null; then
-        echo "使用镜像源: $mirror"
-        export DOCKER_REGISTRY_MIRROR="$mirror"
-        break
-    fi
-done
+  ]
+}
+EOF
+    sudo systemctl daemon-reload
+    sudo systemctl restart docker
+fi
 
 # 开始构建流程
 echo "开始构建 ${IMAGE_NAME}:${IMAGE_TAG} 镜像..."
@@ -46,12 +45,7 @@ echo "文件检查通过"
 
 # 执行Docker构建
 echo "开始构建Docker镜像..."
-if [ -n "$DOCKER_REGISTRY_MIRROR" ]; then
-    docker build --build-arg DOCKER_REGISTRY_MIRROR=$DOCKER_REGISTRY_MIRROR -t ${IMAGE_NAME}:${IMAGE_TAG} .
-else
-    echo "警告: 未找到可用的镜像源，使用默认源"
-    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-fi
+docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
 # 检查构建结果
 if [ $? -eq 0 ]; then
